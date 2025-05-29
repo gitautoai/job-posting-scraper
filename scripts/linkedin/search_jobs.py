@@ -13,7 +13,7 @@ async def search_linkedin_jobs(page: Page, keyword: str = "QA Engineer"):
     # Scroll and collect jobs until we have at least 25 unique jobs
     while len(results) < 25:
         # Get current job cards: https://www.linkedin.com/jobs/search/?currentJobId=4220568275&f_T=11227%2C13936%2C4729%2C264%2C661%2C20648%2C1510&geoId=103644278&keywords=Test%20Automation%20Engineer&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE
-        job_cards = await page.locator(".job-card-container").all()
+        job_cards = await page.locator(".job-card-job-posting-card-wrapper").all()
         initial_count = len(job_cards)
         print(f"# of job cards: {len(job_cards)}")
 
@@ -28,13 +28,13 @@ async def search_linkedin_jobs(page: Page, keyword: str = "QA Engineer"):
                 processed_ids.add(job_post_id)
 
                 title = await card.locator(
-                    ".job-card-list__title--link strong"
+                    ".artdeco-entity-lockup__title strong"
                 ).inner_text()
                 company_name = await card.locator(
-                    ".artdeco-entity-lockup__subtitle span"
+                    ".artdeco-entity-lockup__subtitle div"
                 ).inner_text()
                 location = await card.locator(
-                    ".job-card-container__metadata-wrapper span[dir='ltr']"
+                    ".artdeco-entity-lockup__caption div"
                 ).first.inner_text()
 
                 # Click the card to load job details
