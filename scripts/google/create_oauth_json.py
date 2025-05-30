@@ -14,4 +14,3 @@ def create_oauth_json():
 
     with open("google-oauth.json", "w", encoding="utf-8") as f:
         f.write(oauth_json)
-    print("Created google-oauth.json from environment variable")

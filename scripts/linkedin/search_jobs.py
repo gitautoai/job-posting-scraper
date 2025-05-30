@@ -15,7 +15,6 @@ async def search_linkedin_jobs(page: Page, keyword: str = "QA Engineer"):
         # Get current job cards: https://www.linkedin.com/jobs/search/?currentJobId=4220568275&f_T=11227%2C13936%2C4729%2C264%2C661%2C20648%2C1510&geoId=103644278&keywords=Test%20Automation%20Engineer&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE
         job_cards = await page.locator(".job-card-job-posting-card-wrapper").all()
         initial_count = len(job_cards)
-        print(f"# of job cards: {len(job_cards)}")
 
         # Process new job cards
         for card in job_cards:
@@ -68,8 +67,8 @@ async def search_linkedin_jobs(page: Page, keyword: str = "QA Engineer"):
                 print(f"Error processing job card: {e}")
                 continue
 
-        print(f"Found {len(job_cards)} job cards")
-        print(f"Currently found {len(results)} jobs")
+        print(f"Found {len(job_cards)} new job cards")
+        print(f"Found {len(results)} jobs so far\n")
 
         if len(results) >= 25:
             break
