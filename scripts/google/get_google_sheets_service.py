@@ -1,16 +1,21 @@
 # pylint: disable=broad-exception-caught
 # pylint: disable=broad-exception-raised
 # type: ignore
+
+# Standard imports
 import base64
 import os
 import pickle
 from typing import Any
 
+# Third party imports
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
+# Local imports
+from scripts.google.create_oauth_json import create_oauth_json
 from utils.handle_exceptions import handle_exceptions
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -28,9 +33,13 @@ def get_google_sheets_service():
     token_pickle_base64 = os.getenv("GOOGLE_TOKEN_PICKLE")
     if not is_local and token_pickle_base64:
         try:
+            create_oauth_json()
+            print("Created google-oauth.json from environment variable")
+
             token_pickle = base64.b64decode(token_pickle_base64)
             creds = pickle.loads(token_pickle)
             print("Loaded token from GOOGLE_TOKEN_PICKLE environment variable")
+
         except Exception as e:
             print(f"Failed to load token from environment: {e}")
 

@@ -4,7 +4,10 @@ import os
 import sys
 import datetime
 
+from utils.handle_exceptions import handle_exceptions
 
+
+@handle_exceptions(raise_on_error=True)
 def select_keyword(event_name: str | None = None):
     """
     Select a keyword based on various criteria:
@@ -12,33 +15,20 @@ def select_keyword(event_name: str | None = None):
     - For scheduled runs: Select based on current hour
     """
     # Load keywords from JSON file
-    try:
-        with open("keywords.json", "r", encoding="utf-8") as keyword_file:
-            keywords = json.load(keyword_file)
-    except FileNotFoundError:
-        # Fallback keywords if file doesn't exist
-        keywords = [
-            "Test Automation Engineer",
-            "QA Engineer",
-            "Software QA",
-            "Quality Assurance Engineer",
-            "SDET",
-            "Test Engineer",
-        ]
-        # Create the file for future use
-        with open("keywords.json", "w", encoding="utf-8") as keyword_file:
-            json.dump(keywords, keyword_file, indent=2)
+    with open("keywords.json", "r", encoding="utf-8") as keyword_file:
+        keywords: list[str] = json.load(keyword_file)
 
     # For manual runs use the first keyword
+    selected_keyword = keywords[0]
     if event_name == "workflow_dispatch":
-        return keywords[0]
+        return selected_keyword
 
     # For scheduled runs, calculate based on time
     hour = datetime.datetime.now(datetime.UTC).hour
-    run_interval = 8  # Run every 8 hours
+    run_interval = 24 // len(keywords)
 
     # Select keyword based on current time
-    index = (hour // run_interval) % len(keywords)
+    index = hour // run_interval
     selected_keyword = keywords[index]
 
     print(

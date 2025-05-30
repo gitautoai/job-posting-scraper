@@ -2,12 +2,12 @@ name: LinkedIn Job Scraper
 
 on:
   schedule:
-    - cron: "0 */8 * * *" # Run every 8 hours
+    - cron: "0 */6 * * *" # minute hour day-of-month month day-of-week. Run every 6 hours.
   workflow_dispatch: # Allows manual triggering with optional keyword input
     inputs:
       keyword:
-        description: "Search keyword (optional)"
-        required: false
+        description: "Search keyword (required)"
+        required: true
         type: string
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
             echo "keyword=${{ github.event.inputs.keyword }}" >> $GITHUB_OUTPUT
           else
             # Otherwise use select_keyword.py to determine the keyword
-            KEYWORD=$(python scripts/select_keyword.py ${{ github.event_name }})
+            KEYWORD=$(python utils/select_keyword.py ${{ github.event_name }})
             echo "keyword=$KEYWORD" >> $GITHUB_OUTPUT
           fi
 
@@ -49,8 +49,4 @@ jobs:
           GOOGLE_OAUTH_JSON: ${{ secrets.GOOGLE_OAUTH_JSON }}
           GOOGLE_TOKEN_PICKLE: ${{ secrets.GOOGLE_TOKEN_PICKLE }}
           SEARCH_KEYWORD: ${{ steps.select-keyword.outputs.keyword }}
-        run: |
-          # Create google-oauth.json from secret
-          echo "$GOOGLE_OAUTH_JSON" > google-oauth.json
-          # Run the scraper
-          python -m main
+        run: python -m main
