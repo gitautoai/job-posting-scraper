@@ -15,10 +15,12 @@ from playwright.async_api import async_playwright
 
 # Local imports
 from scripts.google.get_google_sheets_service import get_google_sheets_service
+from scripts.google.read_from_sheets import read_from_sheets
 from scripts.google.write_to_sheets import write_to_sheets
 from scripts.linkedin.ensure_login import ensure_linkedin_login
 from scripts.linkedin.login_with_linkedin import login_linkedin
 from scripts.linkedin.search_jobs import search_linkedin_jobs
+from scripts.slack.slack import slack
 
 
 async def main():
@@ -107,7 +109,8 @@ async def main():
             # Get jobs from first page
             jobs = await search_linkedin_jobs(page, keyword)
             print(f"Found {len(jobs)} jobs on page 1")
-            write_to_sheets(sheets_service, spreadsheet_id, jobs)
+            new_jobs_count = write_to_sheets(sheets_service, spreadsheet_id, jobs)
+            total_new_jobs = new_jobs_count
 
             # Only fetch additional pages when running locally
             if is_local:
@@ -125,7 +128,21 @@ async def main():
                     # Get jobs
                     jobs = await search_linkedin_jobs(page, keyword)
                     print(f"Found {len(jobs)} jobs on page {page_num}")
-                    write_to_sheets(sheets_service, spreadsheet_id, jobs)
+                    new_jobs_count = write_to_sheets(
+                        sheets_service, spreadsheet_id, jobs
+                    )
+                    total_new_jobs += new_jobs_count
+
+            # Get total jobs count
+            existing_jobs = read_from_sheets(sheets_service, spreadsheet_id)
+            total_jobs = len(existing_jobs)
+
+            # Send Slack notification
+            slack(
+                f"Job Search Results for '{keyword}':\n"
+                f"• New jobs added: {total_new_jobs}\n"
+                f"• Total jobs in database: {total_jobs}"
+            )
 
         finally:
             await browser.close()
