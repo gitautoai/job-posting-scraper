@@ -99,7 +99,7 @@ async def main():
             url_params = "&".join([f"{k}={v}" for k, v in filters.items()])
             url = f"{base_url}?{url_params}"
 
-            print("Fetching page 1")
+            print(f"\nFetching page 1 for keyword: {keyword}")
             await page.goto(url)
             await page.wait_for_load_state("domcontentloaded")
             await page.wait_for_timeout(2000)
