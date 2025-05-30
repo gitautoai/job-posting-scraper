@@ -1,6 +1,7 @@
 # pylint: disable=broad-exception-caught
 from datetime import datetime
 from playwright.async_api import Page
+from utils.clean_company_name import clean_company_name
 from utils.handle_exceptions import handle_exceptions
 
 
@@ -32,6 +33,7 @@ async def search_linkedin_jobs(page: Page, keyword: str = "QA Engineer"):
                 company_name = await card.locator(
                     ".artdeco-entity-lockup__subtitle div"
                 ).inner_text()
+                company_name = clean_company_name(company_name)
                 location = await card.locator(
                     ".artdeco-entity-lockup__caption div"
                 ).first.inner_text()
