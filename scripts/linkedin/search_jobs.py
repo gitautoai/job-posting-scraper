@@ -2,6 +2,7 @@
 from datetime import datetime
 from playwright.async_api import Page
 from utils.clean_company_name import clean_company_name
+from utils.clean_job_title import clean_job_title
 from utils.handle_exceptions import handle_exceptions
 
 
@@ -30,6 +31,7 @@ async def search_linkedin_jobs(page: Page, keyword: str = "QA Engineer"):
                 title = await card.locator(
                     ".artdeco-entity-lockup__title strong"
                 ).inner_text()
+                title = clean_job_title(title)
                 company_name = await card.locator(
                     ".artdeco-entity-lockup__subtitle div"
                 ).inner_text()
