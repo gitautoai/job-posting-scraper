@@ -14,7 +14,7 @@ def write_to_sheets(service: Any, spreadsheet_id: str, jobs: list[dict[str, Any]
     new_jobs = [job for job in jobs if job["job_post_id"] not in existing_ids]
 
     if not new_jobs:
-        return  # No new data, exit
+        return 0  # No new data, return 0
 
     headers = [
         "job_post_id",
@@ -51,3 +51,5 @@ def write_to_sheets(service: Any, spreadsheet_id: str, jobs: list[dict[str, Any]
         insertDataOption="INSERT_ROWS",
         body={"values": values},
     ).execute()
+
+    return len(new_jobs)  # Return count of new jobs added
