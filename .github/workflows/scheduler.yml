@@ -1,0 +1,52 @@
+name: LinkedIn Job Scraper
+
+on:
+  schedule:
+    - cron: "0 */6 * * *" # minute hour day-of-month month day-of-week. Run every 6 hours.
+  workflow_dispatch: # Allows manual triggering with optional keyword input
+    inputs:
+      keyword:
+        description: "Search keyword (required)"
+        required: true
+        type: string
+
+jobs:
+  scrape-linkedin:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Select keyword
+        id: select-keyword
+        run: |
+          # If manual run with keyword specified, use that
+          if [ "${{ github.event.inputs.keyword }}" != "" ]; then
+            echo "keyword=${{ github.event.inputs.keyword }}" >> $GITHUB_OUTPUT
+          else
+            # Otherwise use select_keyword.py to determine the keyword
+            KEYWORD=$(python utils/select_keyword.py ${{ github.event_name }})
+            echo "keyword=$KEYWORD" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install dependencies and Playwright
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          playwright install chromium
+
+      - name: Run LinkedIn scraper
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          LINKEDIN_AUTH_JSON: ${{ secrets.LINKEDIN_AUTH_JSON }}
+          LINKEDIN_USERNAME: ${{ secrets.LINKEDIN_USERNAME }}
+          LINKEDIN_PASSWORD: ${{ secrets.LINKEDIN_PASSWORD }}
+          GOOGLE_OAUTH_JSON: ${{ secrets.GOOGLE_OAUTH_JSON }}
+          GOOGLE_TOKEN_PICKLE: ${{ secrets.GOOGLE_TOKEN_PICKLE }}
+          SEARCH_KEYWORD: ${{ steps.select-keyword.outputs.keyword }}
+        run: python -m main
